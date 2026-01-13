@@ -20,23 +20,17 @@ export function selectedMultiValues(selectEl) {
 
 export function setMultiSelected(selectEl, values) {
   const set = new Set(values || []);
-  for (const opt of selectEl.options) {
-    opt.selected = set.has(opt.value);
-  }
+  for (const opt of selectEl.options) opt.selected = set.has(opt.value);
 }
 
 export function renderPatientMetrics(el, metrics) {
   el.innerHTML = "";
-  for (const m of metrics) {
-    el.appendChild(metricRow(m.label, m.value, m.sub));
-  }
+  for (const m of metrics) el.appendChild(metricRow(m.label, m.value, m.sub));
 }
 
 export function renderTotals(el, totals) {
   el.innerHTML = "";
-  for (const t of totals) {
-    el.appendChild(metricRow(t.label, t.value, t.sub));
-  }
+  for (const t of totals) el.appendChild(metricRow(t.label, t.value, t.sub));
 }
 
 export function renderWarnings(el, warnings) {
@@ -45,47 +39,21 @@ export function renderWarnings(el, warnings) {
     el.appendChild(alertBox("alert-good", "No warnings triggered by current thresholds."));
     return;
   }
-  for (const w of warnings) {
-    el.appendChild(alertBox(w.level, w.text));
-  }
-}
-
-function metricRow(label, value, sub) {
-  const div = document.createElement("div");
-  div.className = "metric";
-  const left = document.createElement("b");
-  left.textContent = label;
-  const right = document.createElement("div");
-  right.innerHTML = `<div>${escapeHtml(value)}</div>${sub ? `<div class="subtle">${escapeHtml(sub)}</div>` : ""}`;
-  div.appendChild(left);
-  div.appendChild(right);
-  return div;
-}
-
-function alertBox(levelClass, text) {
-  const div = document.createElement("div");
-  div.className = `alert ${levelClass || ""}`;
-  div.textContent = text;
-  return div;
+  for (const w of warnings) el.appendChild(alertBox(w.level, w.text));
 }
 
 export function renderDaysTable(tbody, model) {
-  // model: { days, dayRows: [{...computed}], cfg, onChange callbacks }
   const { days, dayRows, cfg, handlers } = model;
   tbody.innerHTML = "";
-
-  const orderablesByCategory = groupOrderables(cfg);
 
   for (let i = 0; i < days.length; i++) {
     const day = days[i];
     const row = dayRows[i];
-
     const tr = document.createElement("tr");
 
-    // HD
     tr.appendChild(tdText(String(day.hd)));
 
-    // Date (input + 13JAN display)
+    // Date input + 13JAN label
     const tdDate = document.createElement("td");
     const dateWrap = document.createElement("div");
     dateWrap.style.display = "grid";
@@ -105,47 +73,16 @@ export function renderDaysTable(tbody, model) {
     tdDate.appendChild(dateWrap);
     tr.appendChild(tdDate);
 
-    // Panels / clickable orderables
+    // Panels: pills + button (no inline picker)
     const tdPanels = document.createElement("td");
     tdPanels.appendChild(renderSelectedPills(day.orderables || [], cfg));
 
-    const picker = document.createElement("div");
-    picker.className = "panel-picker";
-
-    const catOrder = cfg.ui?.defaultOrderableCategoryOrder || Object.keys(orderablesByCategory);
-
-    for (const cat of catOrder) {
-      const items = orderablesByCategory[cat];
-      if (!items || !items.length) continue;
-
-      const box = document.createElement("div");
-      box.className = "cat";
-
-      const h = document.createElement("h3");
-      h.textContent = cat;
-      box.appendChild(h);
-
-      for (const ord of items) {
-        const wrap = document.createElement("div");
-        wrap.className = "check";
-
-        const cb = document.createElement("input");
-        cb.type = "checkbox";
-        cb.checked = (day.orderables || []).includes(ord.id);
-        cb.addEventListener("change", () => handlers.onToggleOrderable(i, ord.id, cb.checked));
-
-        const lab = document.createElement("label");
-        lab.textContent = ord.label;
-
-        wrap.appendChild(cb);
-        wrap.appendChild(lab);
-        box.appendChild(wrap);
-      }
-
-      picker.appendChild(box);
-    }
-
-    tdPanels.appendChild(picker);
+    const btn = document.createElement("button");
+    btn.className = "btn btn-primary";
+    btn.textContent = "Edit panels";
+    btn.addEventListener("click", () => handlers.onOpenPanelModal(i));
+    tdPanels.appendChild(document.createElement("div")).style.height = "8px";
+    tdPanels.appendChild(btn);
     tr.appendChild(tdPanels);
 
     // Waste
@@ -159,13 +96,8 @@ export function renderDaysTable(tbody, model) {
     tdWaste.appendChild(wasteInput);
     tr.appendChild(tdWaste);
 
-    // Daily mL
     tr.appendChild(tdText(row.dailyMl.toFixed(1)));
-
-    // mL/kg/day
     tr.appendChild(tdText(row.mlPerKgDay.toFixed(2)));
-
-    // %EBV
     tr.appendChild(tdText(row.pctEBV.toFixed(2)));
 
     // Remove
@@ -181,6 +113,50 @@ export function renderDaysTable(tbody, model) {
   }
 }
 
+/* ---------- Modal content renderer ---------- */
+export function renderPanelModal(bodyEl, cfg, selectedIds, onToggle) {
+  bodyEl.innerHTML = "";
+  const orderablesByCategory = groupOrderables(cfg);
+  const catOrder = cfg.ui?.defaultOrderableCategoryOrder || Object.keys(orderablesByCategory);
+
+  const picker = document.createElement("div");
+  picker.className = "panel-picker";
+
+  for (const cat of catOrder) {
+    const items = orderablesByCategory[cat];
+    if (!items || !items.length) continue;
+
+    const box = document.createElement("div");
+    box.className = "cat";
+
+    const h = document.createElement("h3");
+    h.textContent = cat;
+    box.appendChild(h);
+
+    for (const ord of items) {
+      const wrap = document.createElement("div");
+      wrap.className = "check";
+
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.checked = selectedIds.includes(ord.id);
+      cb.addEventListener("change", () => onToggle(ord.id, cb.checked));
+
+      const lab = document.createElement("label");
+      lab.textContent = ord.label;
+
+      wrap.appendChild(cb);
+      wrap.appendChild(lab);
+      box.appendChild(wrap);
+    }
+
+    picker.appendChild(box);
+  }
+
+  bodyEl.appendChild(picker);
+}
+
+/* ---------- Helpers ---------- */
 function tdText(text) {
   const td = document.createElement("td");
   td.textContent = text;
@@ -217,11 +193,27 @@ function groupOrderables(cfg) {
     out[cat] ||= [];
     out[cat].push(o);
   }
-  // Stable alpha within category
-  for (const k of Object.keys(out)) {
-    out[k].sort((a, b) => a.label.localeCompare(b.label));
-  }
+  for (const k of Object.keys(out)) out[k].sort((a,b)=>a.label.localeCompare(b.label));
   return out;
+}
+
+function metricRow(label, value, sub) {
+  const div = document.createElement("div");
+  div.className = "metric";
+  const left = document.createElement("b");
+  left.textContent = label;
+  const right = document.createElement("div");
+  right.innerHTML = `<div>${escapeHtml(value)}</div>${sub ? `<div class="subtle">${escapeHtml(sub)}</div>` : ""}`;
+  div.appendChild(left);
+  div.appendChild(right);
+  return div;
+}
+
+function alertBox(levelClass, text) {
+  const div = document.createElement("div");
+  div.className = `alert ${levelClass || ""}`;
+  div.textContent = text;
+  return div;
 }
 
 function escapeHtml(s) {
