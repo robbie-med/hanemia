@@ -16,12 +16,12 @@ python3 -m http.server 8000
 Then open:
 http://localhost:8000
 
-Deploy on GitHub Pages
+## Deploy on GitHub Pages
 	1.	Create a repo
 	2.	Add these files
 	3.	Settings → Pages → Deploy from branch → root
 
-Data model
+# Data model
 	•	Config: stored in localStorage key phleb_config_v1 (defaults ship in src/config.defaults.js)
 	•	Patient+days: stored in localStorage key phleb_state_v1
 
