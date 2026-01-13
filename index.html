@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Phlebotomy Loss Tracker</title>
+  <link rel="stylesheet" href="./assets/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>Phlebotomy Loss Tracker</h1>
+      <div class="subtle" id="institutionLine"></div>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn" id="btnExportState" title="Export patient+days JSON">Export</button>
+      <button class="btn" id="btnImportState" title="Import patient+days JSON">Import</button>
+      <button class="btn btn-danger" id="btnResetState" title="Reset patient+days">Reset</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>Patient</h2>
+
+      <div class="grid">
+        <label class="field">
+          <span>Weight (kg)</span>
+          <input id="weightKg" type="number" inputmode="decimal" min="0" step="0.1" />
+        </label>
+
+        <label class="field">
+          <span>EBV preset</span>
+          <select id="ebvPreset"></select>
+        </label>
+
+        <label class="field">
+          <span>EBV override (mL/kg)</span>
+          <input id="ebvOverride" type="number" inputmode="decimal" min="0" step="1" placeholder="(optional)" />
+        </label>
+
+        <label class="field">
+          <span>Context flags (optional)</span>
+          <select id="contextFlags" multiple size="4" title="Hold Ctrl/Cmd to select multiple">
+            <option value="ICU">ICU / critically ill</option>
+            <option value="CKD">CKD</option>
+            <option value="Oncology">Oncology / chemo</option>
+            <option value="Prematurity">Prematurity</option>
+            <option value="ChronicInflammation">Chronic inflammation</option>
+            <option value="PoorNutrition">Poor nutrition</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="metrics" id="patientMetrics"></div>
+      <div class="subtle">
+        Estimates diagnostic blood loss based on configurable tube volumes and orderable→tube mappings.
+        Not all causes of anemia are captured.
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="row-between">
+        <h2>Hospital Days</h2>
+        <div class="row">
+          <button class="btn btn-primary" id="btnAddDay">Add day</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="table" id="daysTable">
+          <thead>
+            <tr>
+              <th style="width: 84px;">HD</th>
+              <th style="width: 140px;">Date</th>
+              <th>Panels</th>
+              <th style="width: 120px;">Waste (mL)</th>
+              <th style="width: 120px;">Daily (mL)</th>
+              <th style="width: 140px;">mL/kg/day</th>
+              <th style="width: 120px;">% EBV</th>
+              <th style="width: 90px;"></th>
+            </tr>
+          </thead>
+          <tbody id="daysTbody"></tbody>
+        </table>
+      </div>
+
+      <div class="totals" id="totals"></div>
+      <div class="warnings" id="warnings"></div>
+    </section>
+
+    <section class="card">
+      <div class="row-between">
+        <h2>Config</h2>
+        <div class="row">
+          <button class="btn" id="btnExportConfig">Export config</button>
+          <button class="btn" id="btnImportConfig">Import config</button>
+          <button class="btn btn-danger" id="btnResetConfig">Reset config</button>
+        </div>
+      </div>
+
+      <details>
+        <summary class="subtle">Show config JSON tools</summary>
+        <textarea id="jsonBox" class="jsonbox" spellcheck="false" placeholder="JSON will appear here..."></textarea>
+        <div class="row">
+          <button class="btn" id="btnCopyJson">Copy</button>
+          <span class="subtle" id="jsonStatus"></span>
+        </div>
+      </details>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span class="subtle">
+      Date format: 13JAN / 13JAN2026.
+    </span>
+  </footer>
+
+  <script type="module" src="./src/app.js"></script>
+</body>
+</html>
