@@ -12,7 +12,9 @@
       <h1>Phlebotomy Loss Tracker</h1>
       <div class="subtle" id="institutionLine"></div>
     </div>
+
     <div class="topbar-actions">
+      <a class="linkbtn" href="./settings.html" title="Edit default tubes and panel mappings">Settings</a>
       <button class="btn" id="btnExportState" title="Export patient+days JSON">Export</button>
       <button class="btn" id="btnImportState" title="Import patient+days JSON">Import</button>
       <button class="btn btn-danger" id="btnResetState" title="Reset patient+days">Reset</button>
@@ -55,16 +57,13 @@
       <div class="metrics" id="patientMetrics"></div>
       <div class="subtle">
         Estimates diagnostic blood loss based on configurable tube volumes and orderable→tube mappings.
-        Not all causes of anemia are captured.
       </div>
     </section>
 
     <section class="card">
       <div class="row-between">
         <h2>Hospital Days</h2>
-        <div class="row">
-          <button class="btn btn-primary" id="btnAddDay">Add day</button>
-        </div>
+        <button class="btn btn-primary" id="btnAddDay">Add day</button>
       </div>
 
       <div class="table-wrap">
@@ -72,7 +71,7 @@
           <thead>
             <tr>
               <th style="width: 84px;">HD</th>
-              <th style="width: 140px;">Date</th>
+              <th style="width: 160px;">Date</th>
               <th>Panels</th>
               <th style="width: 120px;">Waste (mL)</th>
               <th style="width: 120px;">Daily (mL)</th>
@@ -91,7 +90,7 @@
 
     <section class="card">
       <div class="row-between">
-        <h2>Config</h2>
+        <h2>JSON</h2>
         <div class="row">
           <button class="btn" id="btnExportConfig">Export config</button>
           <button class="btn" id="btnImportConfig">Import config</button>
@@ -99,21 +98,30 @@
         </div>
       </div>
 
-      <details>
-        <summary class="subtle">Show config JSON tools</summary>
-        <textarea id="jsonBox" class="jsonbox" spellcheck="false" placeholder="JSON will appear here..."></textarea>
-        <div class="row">
-          <button class="btn" id="btnCopyJson">Copy</button>
-          <span class="subtle" id="jsonStatus"></span>
-        </div>
-      </details>
+      <textarea id="jsonBox" spellcheck="false" style="width:100%;min-height:160px"></textarea>
+      <div class="row" style="margin-top:8px">
+        <button class="btn" id="btnCopyJson">Copy</button>
+        <span class="subtle" id="jsonStatus"></span>
+      </div>
     </section>
   </main>
 
+  <!-- Modal: panel picker (FIXES the table stacking/overlap) -->
+  <div class="modal-backdrop" id="panelModalBackdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="panelModalTitle">
+      <div class="modal-header">
+        <div class="modal-title" id="panelModalTitle">Edit Panels</div>
+        <div class="row">
+          <button class="btn" id="btnPanelSelectNone">Select none</button>
+          <button class="btn btn-primary" id="btnPanelDone">Done</button>
+        </div>
+      </div>
+      <div class="modal-body" id="panelModalBody"></div>
+    </div>
+  </div>
+
   <footer class="footer">
-    <span class="subtle">
-      Date format: 13JAN / 13JAN2026.
-    </span>
+    <span class="subtle">Date format: 13JAN / 13JAN2026.</span>
   </footer>
 
   <script type="module" src="./src/app.js"></script>
